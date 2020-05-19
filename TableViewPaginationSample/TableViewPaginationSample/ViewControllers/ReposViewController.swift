@@ -55,7 +55,8 @@ class ReposViewController: UIViewController {
     
     @objc func refresh() {
         nextPage = 0
-        totalCount = 0
+        totalCount = Int.max
+        items = []
         fetchItems()
     }
     
@@ -76,7 +77,6 @@ class ReposViewController: UIViewController {
     }
     
     private func fetchItems() {
-        print("*** fetchItems")
         guard items.count < totalCount else { return }
         apiService.response(from: ReposRequest(page: nextPage, perPage: Self.perPage)) { [weak self] result in
             guard let self = self else { return }

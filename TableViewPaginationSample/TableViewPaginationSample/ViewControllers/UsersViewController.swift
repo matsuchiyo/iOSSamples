@@ -55,7 +55,8 @@ class UsersViewController: UIViewController {
     
     @objc func refresh() {
         nextPage = 0
-        totalCount = 0
+        totalCount = Int.max
+        items = []
         fetchItems()
     }
 
