@@ -9,12 +9,13 @@
 import UIKit
 
 class PopoverPresentationController: UIPresentationController {
-    weak var overlayView: UIView?
+//    weak var overlayView: UIView?
+    weak var overlayView: UIVisualEffectView?
     
     override func presentationTransitionWillBegin() {
         addOverlayView()
         presentedViewController.transitionCoordinator?.animate(alongsideTransition: { [weak self] context in
-            self?.overlayView?.alpha = 0.7
+            self?.overlayView?.alpha = 1.0
         }, completion: nil)
     }
     
@@ -63,11 +64,10 @@ class PopoverPresentationController: UIPresentationController {
     private func addOverlayView() {
         guard let containerView = containerView else { return }
         
-        let overlayView = UIView()
+        let overlayView = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
         overlayView.frame = containerView.bounds
         overlayView.isUserInteractionEnabled = true
         overlayView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(overlayViewDidTap(_:))))
-        overlayView.backgroundColor = .black
         overlayView.alpha = 0.0
         containerView.insertSubview(overlayView, at: 0)
         self.overlayView = overlayView

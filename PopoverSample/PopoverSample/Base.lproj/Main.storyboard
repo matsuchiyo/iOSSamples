@@ -29,11 +29,19 @@
                                     <action selector="showPopover1:" destination="BYZ-38-t0r" eventType="touchUpInside" id="C9K-bL-mLN"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Popover Sample" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Lc7-Ep-LWn">
+                                <rect key="frame" x="71.5" y="68" width="271.5" height="43"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="36"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                         <constraints>
                             <constraint firstItem="rMT-Do-pYO" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="1e2-jL-MCJ"/>
+                            <constraint firstItem="Lc7-Ep-LWn" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="24" id="Ft0-hX-TSC"/>
                             <constraint firstItem="b6z-uZ-iOt" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" constant="-20" id="IU8-B1-dp0"/>
+                            <constraint firstItem="Lc7-Ep-LWn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="J7Q-lN-oXU"/>
                             <constraint firstItem="rMT-Do-pYO" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" constant="20" id="XqR-Rq-6HV"/>
                             <constraint firstItem="b6z-uZ-iOt" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="e6b-HH-i82"/>
                         </constraints>
