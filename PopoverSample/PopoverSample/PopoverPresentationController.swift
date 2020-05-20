@@ -28,11 +28,13 @@ class PopoverPresentationController: UIPresentationController {
         guard completed else { return }
         overlayView?.removeFromSuperview()
     }
-    
-    /*
-    override func size(forChildContentContainer container: UIContentContainer, withParentContainerSize parentSize: CGSize) -> CGSize {
-//        return CGSize(width: parentSize.width - (marginLeft + marginRight), height: parentSize.height - (marginTop + marginBottom))
-        return presentedViewController.preferredContentSize;
+
+    override func containerViewWillLayoutSubviews() {
+        overlayView?.frame = containerView!.bounds
+        
+        presentedView?.frame = frameOfPresentedViewInContainerView
+        presentedView?.layer.cornerRadius = 10
+        presentedView?.clipsToBounds = true
     }
     
     override var frameOfPresentedViewInContainerView: CGRect {
@@ -41,18 +43,12 @@ class PopoverPresentationController: UIPresentationController {
         let y = (containerView!.frame.height - childSize.height) / 2
         return CGRect(origin: CGPoint(x: x, y: y), size: childSize)
     }
- */
     
-    override func containerViewWillLayoutSubviews() {
-        print("### PopoverPresentationController.containerViewWillLayoutSubviews")
-        overlayView?.frame = containerView!.bounds
-        
-        let presentedViewSize = presentedView!.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
-        let x = (containerView!.bounds.width - presentedViewSize.width) / 2
-        let y = (containerView!.bounds.height - presentedViewSize.height) / 2
-        presentedView?.frame = CGRect(origin: CGPoint(x: x, y: y), size: presentedViewSize)
-        presentedView?.layer.cornerRadius = 10
-        presentedView?.clipsToBounds = true
+    override func size(forChildContentContainer container: UIContentContainer, withParentContainerSize parentSize: CGSize) -> CGSize {
+        let marginLeft: CGFloat = 16
+        let childWidth = parentSize.width - marginLeft * 2
+        let size = presentedView!.systemLayoutSizeFitting(CGSize(width: childWidth, height: 0))
+        return size
     }
     
     override func containerViewDidLayoutSubviews() {
@@ -61,7 +57,6 @@ class PopoverPresentationController: UIPresentationController {
     
     
     @objc func overlayViewDidTap(_ sender: UITapGestureRecognizer) {
-        print("### overlayViewDidTap")
         presentedViewController.dismiss(animated: true)
     }
     

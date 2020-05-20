@@ -35,16 +35,15 @@ class ContentViewController: UIViewController {
     }
     
     override func viewWillLayoutSubviews() {
-        print("### ContentViewController.viewWillLayoutSubviews")
         super.viewWillLayoutSubviews()
 //        fitPopoverHeightToContentHeight()
     }
     
     @objc func buttonDidTap(_ sender: UIButton) {
-        print("Button is tapped.")
         dismiss(animated: true)
     }
     
+    /*
     private func fitPopoverHeightToContentHeight() {
         let newHeight = self.view.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
 //        let newY = (UIScreen.main.bounds.height - newHeight) / 2
@@ -52,6 +51,7 @@ class ContentViewController: UIViewController {
         self.view.frame = CGRect(x: oldFrame.minX, y: oldFrame.minY, width: oldFrame.width, height: newHeight)
         self.preferredContentSize = CGSize(width: oldFrame.width, height: newHeight)
     }
+ */
 
     private func initializeView() {
         view.backgroundColor = .white
@@ -99,8 +99,9 @@ class ContentViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
-            stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
-            stackView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+            stackView.leadingAnchor.constraint(greaterThanOrEqualTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 24),
+            stackView.trailingAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -24),
+            stackView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -24),
         ])
     }
