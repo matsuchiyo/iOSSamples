@@ -43,6 +43,7 @@ class CarouselView: UIView {
         reload()
     }
     
+    // いまいちだが、利用元のViewControllerから呼ばせる。
     func viewDidAppear() {
         timer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { timer in
             self.showNextPage()
@@ -174,10 +175,13 @@ extension CarouselView: UICollectionViewDataSource {
 extension CarouselView: UICollectionViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard items.count > 1 else { return }
-        if scrollView.contentOffset.x == 0 {
-            scrollView.contentOffset.x = frame.width * CGFloat(items.count)
-        } else if scrollView.contentOffset.x == frame.width * CGFloat(items.count + 1) {
-            scrollView.contentOffset.x = frame.width * 1
+        
+        if scrollView.contentOffset.x == 0 { // 先頭まできたら...
+            scrollView.contentOffset.x = frame.width * CGFloat(items.count) // 最後の画像にワープ。
+            
+        } else if scrollView.contentOffset.x == frame.width * CGFloat(items.count + 1) { // 末尾まできたら...
+            scrollView.contentOffset.x = frame.width // 最初の画像(imagesの0番目, collectionViewのcellの1番目※)にワープ。
+            // ※ collectionViewのcellの0番目は、無限スクロールのため、imagesの最後の要素。
         }
     }
     
