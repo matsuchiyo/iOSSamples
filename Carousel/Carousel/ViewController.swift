@@ -22,8 +22,8 @@ class ViewController: UIViewController {
         NSLayoutConstraint.activate([
             carouselView.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 0),
             carouselView.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 0),
-            carouselView.heightAnchor.constraint(equalToConstant: CarouselView.carouselViewHeight),
-            carouselView.widthAnchor.constraint(equalToConstant: CarouselView.carouselViewWidth),
+            carouselView.heightAnchor.constraint(equalTo: carouselView.widthAnchor, multiplier: (120 / 343)),
+            carouselView.widthAnchor.constraint(equalToConstant: UIScreen.main.bounds.width - 16 * 2),
         ])
     }
     
@@ -31,8 +31,8 @@ class ViewController: UIViewController {
         super.viewDidAppear(animated)
         self.carouselView.items = [
             "image1",
-//            "image2",
-//            "image3",
+            "image2",
+            "image3",
         ]
         self.carouselView.viewDidAppear()
     }

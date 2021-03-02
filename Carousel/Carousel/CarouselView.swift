@@ -13,40 +13,11 @@ protocol CarouselViewDelegate: AnyObject {
 
 class CarouselView: UIView {
     
-    static var carouselViewWidth: CGFloat {
-        return UIScreen.main.bounds.width - 16 * 2
-    }
-    
-    static var carouselViewHeight: CGFloat {
-        return carouselViewWidth * (120 / 343)
-    }
-    
     weak var delegate: CarouselViewDelegate?
     
     var items: [String] = [] {
         didSet {
-            
-            stackView.arrangedSubviews.forEach { self.stackView.removeArrangedSubview($0) }
-            
-            if items.count <= 10 && items.count > 1 {
-                for _ in 0..<items.count {
-                    let dotView = UIView(frame: .zero)
-                    dotView.layer.cornerRadius = 2
-                    dotView.backgroundColor = .white
-                    NSLayoutConstraint.activate([
-                        dotView.heightAnchor.constraint(equalToConstant: 4),
-                        dotView.widthAnchor.constraint(equalToConstant: 4),
-                    ])
-                    stackView.addArrangedSubview(dotView)
-                }
-            }
-
-            UIView.animate(withDuration: 0, animations: {
-                self.collectionView.reloadData()
-            }, completion: { _ in
-                guard self.items.count > 1 else { return }
-                self.collectionView.contentOffset.x = CarouselView.carouselViewWidth // 2枚目から表示
-            })
+            reload()
         }
     }
     
@@ -60,15 +31,16 @@ class CarouselView: UIView {
         translatesAutoresizingMaskIntoConstraints = false
         
         initializeViews()
-        
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.register(CarouselViewCell.self, forCellWithReuseIdentifier: CarouselViewCell.reuseIdentifier)
-        collectionView.isPagingEnabled = true
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        createAndInsertCollectionView() // itemSizeにこのviewのサイズを渡すために、ここでcollectionViewを生成。
+        reload()
     }
     
     func viewDidAppear() {
@@ -81,9 +53,23 @@ class CarouselView: UIView {
         timer?.invalidate()
     }
     
+    private func reload() {
+        guard collectionView != nil else { return }
+        
+        createPageControl()
+
+        UIView.animate(withDuration: 0, animations: {
+            self.collectionView?.reloadData()
+            
+        }, completion: { _ in
+            guard self.items.count > 1 else { return }
+            self.collectionView?.contentOffset.x = self.frame.width // 2枚目から表示
+        })
+    }
+    
     private func showNextPage() {
-        guard items.count > 1 else { return }
-        let newContentOffsetX: CGFloat = collectionView.contentOffset.x + CarouselView.carouselViewWidth
+        guard items.count > 1 && collectionView != nil else { return }
+        let newContentOffsetX: CGFloat = collectionView.contentOffset.x + frame.width
         let newContentOffset: CGPoint = CGPoint(x: newContentOffsetX, y: collectionView.contentOffset.y)
         self.collectionView.setContentOffset(newContentOffset, animated: true)
     }
@@ -92,20 +78,6 @@ class CarouselView: UIView {
         self.layer.cornerRadius = 8
         self.backgroundColor = .darkGray
         self.clipsToBounds = true
-        
-        let flowLayout = UICollectionViewFlowLayout()
-        flowLayout.scrollDirection = .horizontal
-        flowLayout.minimumInteritemSpacing = CGFloat.greatestFiniteMagnitude
-        flowLayout.itemSize = CGSize(width: Self.carouselViewWidth, height: Self.carouselViewHeight)
-        flowLayout.minimumLineSpacing = 0
-        flowLayout.sectionInset = UIEdgeInsets.zero
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
-        collectionView.showsHorizontalScrollIndicator = false
-        collectionView.showsVerticalScrollIndicator = false
-        collectionView.isScrollEnabled = true
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(collectionView)
-        self.collectionView = collectionView
 
         let stackView = UIStackView(frame: .zero)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -117,17 +89,61 @@ class CarouselView: UIView {
         self.stackView = stackView
         
         NSLayoutConstraint.activate([
+            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
+            stackView.centerXAnchor.constraint(equalTo: centerXAnchor, constant: 0),
+            stackView.heightAnchor.constraint(equalToConstant: 4),
+        ])
+    }
+
+    private func createAndInsertCollectionView() {
+        guard collectionView == nil else { return }
+
+        let flowLayout = UICollectionViewFlowLayout()
+        flowLayout.scrollDirection = .horizontal
+        flowLayout.minimumInteritemSpacing = CGFloat.greatestFiniteMagnitude
+        flowLayout.itemSize = CGSize(width: frame.width, height: frame.height)
+        flowLayout.minimumLineSpacing = 0
+        flowLayout.sectionInset = UIEdgeInsets.zero
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: flowLayout)
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.showsVerticalScrollIndicator = false
+        collectionView.isScrollEnabled = true
+        collectionView.isPagingEnabled = true
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.register(CarouselViewCell.self, forCellWithReuseIdentifier: CarouselViewCell.reuseIdentifier)
+        
+        self.insertSubview(collectionView, at: 0)
+        self.collectionView = collectionView
+        
+        NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: topAnchor, constant: 0),
             collectionView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0),
             collectionView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 0),
             collectionView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: 0),
         ])
-        
-        NSLayoutConstraint.activate([
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
-            stackView.centerXAnchor.constraint(equalTo: centerXAnchor, constant: 0),
-            stackView.heightAnchor.constraint(equalToConstant: 4),
-        ])
+    }
+    
+    private func createPageControl() {
+        stackView.arrangedSubviews.forEach {
+            self.stackView.removeArrangedSubview($0)
+            $0.removeFromSuperview() // これもやらないとsubViewがstackView内に残る。
+        }
+
+        if items.count <= 10 && items.count > 1 {
+            for _ in 0..<items.count {
+                let dotView = UIView(frame: .zero)
+                dotView.layer.cornerRadius = 2
+                dotView.backgroundColor = .white
+                NSLayoutConstraint.activate([
+                    dotView.heightAnchor.constraint(equalToConstant: 4),
+                    dotView.widthAnchor.constraint(equalToConstant: 4),
+                ])
+                stackView.addArrangedSubview(dotView)
+            }
+        }
     }
 }
 
@@ -159,14 +175,13 @@ extension CarouselView: UICollectionViewDelegate {
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         guard items.count > 1 else { return }
         if scrollView.contentOffset.x == 0 {
-            scrollView.contentOffset.x = CarouselView.carouselViewWidth * CGFloat(items.count)
-        } else if scrollView.contentOffset.x == CarouselView.carouselViewWidth * CGFloat(items.count + 1) {
-            scrollView.contentOffset.x = CarouselView.carouselViewWidth * 1
+            scrollView.contentOffset.x = frame.width * CGFloat(items.count)
+        } else if scrollView.contentOffset.x == frame.width * CGFloat(items.count + 1) {
+            scrollView.contentOffset.x = frame.width * 1
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        print("*** willDIsplay indexPath.row: \(indexPath.row)")
         guard items.count > 1 else { return }
         let displayedIndex = (indexPath.row - 1) % items.count
         stackView.arrangedSubviews.enumerated().forEach { index, view in
@@ -175,7 +190,6 @@ extension CarouselView: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("*** indexPath.row: \(indexPath.row)")
         delegate?.itemDidTap(index: indexPath.row)
     }
 }
